@@ -8,7 +8,7 @@ class UserValidator:
     @staticmethod
     def validate_name(name: str):
         if not 0 < len(name) < 256:
-            raise ValueError("Email doesn't has length less 1 and more 255 symbols.")
+            raise ValueError("Value doesn't has length less 1 and more 255 symbols.")
         return name
 
     @staticmethod
@@ -18,9 +18,10 @@ class UserValidator:
     @staticmethod
     def validate_login(login: str):
         if not 5 < len(login) < 256:
-            raise ValueError("Email doesn't has length less 6 and more 255 symbols.")
+            raise ValueError("Login doesn't has length less 6 and more 255 symbols.")
         if not re.fullmatch(REGEX_LOGIN, login):
-            raise ValueError("Email is invalidated by the validation rule.")
+            raise ValueError("Login is invalidated by the validation rule.")
+        return login
 
     @staticmethod
     def validate_email(email: str):
@@ -34,3 +35,4 @@ class UserValidator:
     def validate_password(password: str):
         if not 7 < len(password) < 256:
             raise ValueError("Password doesn't has length less 8 and more 255 symbols.")
+        return password
