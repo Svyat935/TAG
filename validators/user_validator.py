@@ -1,7 +1,7 @@
 import re
 
-REGEX_EMAIL = r'\b[A-Za-z0-9.]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
-REGEX_LOGIN = r'[\-_A-Za-z0-9.]+'
+REGEX_EMAIL = r"\b[A-Za-z0-9.]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b"
+REGEX_LOGIN = r"[\-_A-Za-z0-9.]+"
 
 
 class UserValidator:

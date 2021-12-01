@@ -3,7 +3,8 @@ from contextlib import contextmanager
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 
-DEFAULT_URL = "sqlite:///db/database.db"
+DEFAULT_PATH = "db/database.db"
+DEFAULT_URL = f"sqlite:///{DEFAULT_PATH}"
 
 Base = declarative_base()
 
@@ -13,6 +14,7 @@ class DBConnection:
         self._url = url
         self._engine = create_engine(url)
 
+        from models.user import User
         Base.metadata.create_all(self._engine)
 
     @property
@@ -25,7 +27,7 @@ class DBConnection:
 
     @contextmanager
     def create_connection(self) -> Session:
-        session = sessionmaker(bind=self._engine, autocommit=True, autoflush=True)()
+        session = sessionmaker(bind=self._engine, autocommit=False, autoflush=False, expire_on_commit=False)()
         try:
             yield session
         finally:
