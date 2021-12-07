@@ -13,20 +13,26 @@ JWT_EXPIRE_DEFAULT = datetime.utcnow() + timedelta(days=10)
 
 
 class UserRegAuth:
-    def __init__(self, db_connection: DBConnection, jwt_key: str = JWT_KEY_DEFAULT,
-                 jwt_expire: datetime = JWT_EXPIRE_DEFAULT):
+    def __init__(
+        self,
+        db_connection: DBConnection = DBConnection(),
+        jwt_key: str = JWT_KEY_DEFAULT,
+        jwt_expire: datetime = JWT_EXPIRE_DEFAULT,
+    ):
         self._db = db_connection
         self._jwt_key = jwt_key
         self._jwt_expire = jwt_expire
 
-    def authorization(self, login: str, password: str) -> str:
+    def authorization(self, login: str, password: str) -> Optional[str]:
         with self._db.create_connection() as conn:
             user_found: User = conn.query(User).filter(User.login == login).first()
             if bcrypt.checkpw(password.encode(), user_found.password.encode()):
                 token = jwt.encode(
-                    payload={"exp": self._jwt_expire, "user_id": user_found.id}, key=self._jwt_key
+                    payload={"exp": self._jwt_expire, "user_id": user_found.id},
+                    key=self._jwt_key,
                 )
                 return token
+        return None
 
     def registration(self, user: User) -> User:
         UserValidator.validate_email(user.email)
@@ -42,7 +48,9 @@ class UserRegAuth:
             if user_found:
                 raise ValueError("User already exists.")
 
-            user.password = bcrypt.hashpw(password=user.password.encode(), salt=bcrypt.gensalt()).decode()
+            user.password = bcrypt.hashpw(
+                password=user.password.encode(), salt=bcrypt.gensalt()
+            ).decode()
             conn.add(user)
             conn.commit()
 
@@ -56,3 +64,8 @@ class UserRegAuth:
         except jwt.DecodeError:
             return None
         return payload
+
+    def get_user(self, user_id) -> Optional[User]:
+        with self._db.create_connection() as conn:
+            user = conn.query(User).filter(User.id == user_id).first()
+            return user

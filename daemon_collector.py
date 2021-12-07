@@ -52,9 +52,12 @@ class Daemon:
         sites: List[SiteSettings] = self._get_all_sites()
         queue = []
         for site in sites:
-            date = site.start_date if datetime.now() < site.start_date else site.start_date + site.search_interval
-            queue.append({"date": date,
-                          "url": site.url})
+            date = (
+                site.start_date
+                if datetime.now() < site.start_date
+                else site.start_date + site.search_interval
+            )
+            queue.append({"date": date, "url": site.url})
         if queue:
             queue = sorted(queue, key=lambda obj: obj["date"])
             return queue

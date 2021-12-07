@@ -8,7 +8,7 @@ class UserSettings(Base):
     __tablename__ = "user_settings"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey("users.id"))
     settings = Column(JSON)
 
     user = relationship("User", back_populates="user_settings")

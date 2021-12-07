@@ -8,7 +8,7 @@ class SiteSettings(Base):
     __tablename__ = "site_settings"
 
     id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey('users.id'))
+    user_id = Column(Integer, ForeignKey("users.id"))
     url = Column(String)
     search_settings = Column(JSON)
     search_interval = Column(Interval)

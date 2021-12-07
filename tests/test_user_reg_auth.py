@@ -38,7 +38,9 @@ def test_parse_token_positive(setup, new_user):
 def test_parse_token_negative_expire_time(setup, new_user):
     db_connection = setup
     login, password = new_user.login, new_user.password
-    user_reg_auth = UserRegAuth(db_connection, jwt_expire=datetime.utcnow() - timedelta(days=10))
+    user_reg_auth = UserRegAuth(
+        db_connection, jwt_expire=datetime.utcnow() - timedelta(days=10)
+    )
     user_reg_auth.registration(new_user)
     token = user_reg_auth.authorization(login, password)
     result = user_reg_auth.parse_token(token)

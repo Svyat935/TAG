@@ -15,6 +15,10 @@ class DBConnection:
         self._engine = create_engine(url)
 
         from models.user import User
+        from models.html_template import HTMLTemplate
+        from models.user_settings import UserSettings
+        from models.site_settings import SiteSettings
+
         Base.metadata.create_all(self._engine)
 
     @property
@@ -27,7 +31,9 @@ class DBConnection:
 
     @contextmanager
     def create_connection(self) -> Session:
-        session = sessionmaker(bind=self._engine, autocommit=False, autoflush=False, expire_on_commit=False)()
+        session = sessionmaker(
+            bind=self._engine, autocommit=False, autoflush=False, expire_on_commit=False
+        )()
         try:
             yield session
         finally:

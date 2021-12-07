@@ -29,40 +29,16 @@ def row_css():
 
 @pytest.fixture
 def new_user():
-    user = User(
-        login="JoshBush23",
-        password="Test123_123",
-        email="test@mail.ru"
-    )
+    user = User(login="JoshBush23", password="Test123_123", email="test@mail.ru")
     return user
 
-#
-# @pytest.fixture
-# def user_credentials():
-#     user = {
-#         "login": "Test123",
-#         "password": "Test123"
-#     }
-#     return user
-#
-#
-# @pytest.fixture
-# def user_pass_settings():
-#     user_settings = {
-#         "url": "https://ksu.edu.ru/",
-#         "html_tags": ["div", "head"],
-#         "css_tags": ["footer"],
-#         "js_tags": ["name", "body"]
-#     }
-#     return user_settings
-#
-#
-# @pytest.fixture
-# def user_fail_settings():
-#     user_settings = {
-#         "url": "https://www.asdfghjkl.com/",
-#         "html_tags": ["spider_man"],
-#         "css_tags": ["69Abobus"],
-#         "js_tags": ["1488Polish"]
-#     }
-#     return user_settings
+
+@pytest.fixture
+def site_settings():
+    settings = {
+        "url": ["https://www.futuretimeline.net/index.htm#timeline"],
+        "html_tags": ["meta", "link"],
+        "css_tags": ["button"],
+        "interval": "1 day",
+    }
+    return settings
