@@ -1,5 +1,6 @@
 import json
 from datetime import datetime, timedelta
+from difflib import HtmlDiff
 
 from flask import Flask, request, render_template, redirect, url_for
 
@@ -76,11 +77,13 @@ def page_site_settings():
             return {"status": "error", "message": "JWT is invalid."}, 400
         user = user_reg_auth.get_user(user_id)
         settings = controller_site_settings.get_user_site_settings(user)
-        # IF
-        settings = settings.search_settings
-        settings = json.loads(settings)
-        settings["html_tags"] = " ".join(settings["html_tags"])
-        settings["css_tags"] = " ".join(settings["css_tags"])
+        if settings:
+            settings = settings.search_settings
+            settings = json.loads(settings)
+            settings["html_tags"] = " ".join(settings["html_tags"])
+            settings["css_tags"] = " ".join(settings["css_tags"])
+        else:
+            settings = {"html_tags": "", "css_tags": "", "url": "", "interval": ""}
         return render_template("site_settings.html", settings=settings)
 
     try:
@@ -120,6 +123,54 @@ def page_site_settings():
     return {"status": "ok"}
 
 
-@app.route("/settings/update/user", methods=["POST"])
-def create_user_settings():
-    pass
+@app.route("/differ/", methods=["GET", "POST"])
+def differ_page():
+    token = request.cookies.get("JWT")
+    if not token:
+        return {"status": "error", "message": "JWT isn't existed"}, 400
+    user_id = user_reg_auth.parse_token(token)["user_id"]
+    if not user_id:
+        return {"status": "error", "message": "JWT is invalid."}, 400
+    user = user_reg_auth.get_user(user_id)
+    settings = controller_site_settings.get_user_site_settings(user)
+    html_templates = controller_site_settings.get_html_templates_for_settings(settings)
+
+    if request.method == "GET":
+        dates = [temp.date for temp in html_templates]
+        return render_template("differ_page.html", dates=dates)
+
+    dates = request.json
+    from_date = datetime.strptime(dates["from"], "%Y-%m-%d %H:%M:%S.%f")
+    to_date = datetime.strptime(dates["to"], "%Y-%m-%d %H:%M:%S.%f")
+    from_html, to_html = None, None
+    for temp in html_templates:
+        if temp.date == from_date:
+            from_html = temp.raw_html
+        if temp.date == to_date:
+            to_html = temp.raw_html
+        if from_html is not None and to_html is not None:
+            break
+
+    fromlines = []
+    for temp in from_html.split("\n"):
+        result = []
+        while len(temp) > 73:
+            result.append(temp[:73])
+            temp = temp[73:]
+        result.append(temp)
+
+        fromlines = [*fromlines, *result]
+
+    tolines = []
+    for temp in to_html.split("\n"):
+        result = []
+        while len(temp) > 73:
+            result.append(temp[:73])
+            temp = temp[73:]
+        result.append(temp)
+
+        tolines = [*tolines, *result]
+
+    differ = HtmlDiff()
+    answer = differ.make_file(fromlines=fromlines, tolines=tolines)
+    return answer

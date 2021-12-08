@@ -37,7 +37,7 @@ def test_validate_settings_regex():
         SettingsValidator.validate_site_settings(settings)
 
     assert (
-        info.value.args[0] == "Field 'interval' must be '1 day', '1 hour', '1 minutes'"
+        info.value.args[0] == "Field 'interval' must be '1 day', '1 hour', '1 minute'"
     )
 
 

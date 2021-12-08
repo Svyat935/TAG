@@ -37,7 +37,9 @@ class Daemon:
                 print(f"Sleep: {sleep_length.seconds}")
                 time.sleep(sleep_length.seconds)
 
-    def _create_html_template(self, url: str, raw_html: str, date: datetime = datetime.now()) -> None:
+    def _create_html_template(
+        self, url: str, raw_html: str, date: datetime = datetime.now()
+    ) -> None:
         with self.db_connection.create_connection() as conn:
             html_template = HTMLTemplate(
                 url=url,
@@ -62,7 +64,9 @@ class Daemon:
             while date < datetime.now():
                 date += site.search_interval
 
-            queue.append({"date": date, "interval": site.search_interval, "url": site.url})
+            queue.append(
+                {"date": date, "interval": site.search_interval, "url": site.url}
+            )
         if queue:
             queue = sorted(queue, key=lambda obj: obj["date"])
             return queue
