@@ -26,7 +26,7 @@ class UserRegAuth:
     def authorization(self, login: str, password: str) -> Optional[str]:
         with self._db.create_connection() as conn:
             user_found: User = conn.query(User).filter(User.login == login).first()
-            if bcrypt.checkpw(password.encode(), user_found.password.encode()):
+            if user_found and bcrypt.checkpw(password.encode(), user_found.password.encode()):
                 token = jwt.encode(
                     payload={"exp": self._jwt_expire, "user_id": user_found.id},
                     key=self._jwt_key,

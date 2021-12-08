@@ -21,9 +21,9 @@ class ControllerSiteSettings:
             )
             return bool(settings)
 
-    def get_user_site_settings(self, user: User) -> List[SiteSettings]:
+    def get_user_site_settings(self, user: User) -> SiteSettings:
         with self._db.create_connection() as db:
             settings = (
-                db.query(SiteSettings).filter(SiteSettings.user_id == user.id).all()
+                db.query(SiteSettings).filter(SiteSettings.user_id == user.id).first()
             )
             return settings

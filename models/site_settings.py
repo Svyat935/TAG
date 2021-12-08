@@ -12,7 +12,7 @@ class SiteSettings(Base):
     url = Column(String)
     search_settings = Column(JSON)
     search_interval = Column(Interval)
-    start_date = Column(DateTime)
+    current_date = Column(DateTime)
 
     user = relationship("User", back_populates="site_settings")
 

@@ -1,0 +1,37 @@
+{% extends 'base.html' %}
+{% block content %}
+<div>
+    <p>
+        <label for="url">URL</label>
+        <input type="text" name="url" size="50" value={{ settings.url }}>
+    </p>
+    <p>
+        <label for="html_tags">Tags of HTML (separate using space)</label>
+        <textarea name="html_tags" size="50" >{{ settings.html_tags }}</textarea>
+    </p>
+    <p>
+        <label for="css_tags">Tags of CSS (separate using space)</label>
+        <textarea name="css_tags" >{{ settings.css_tags }}</textarea>
+    </p>
+    <p>
+        <label for="interval">Interval</label>
+        <input type="radio"
+               name="interval"
+               value="1 month"
+               {% if settings.interval == "1 month" %}checked
+        {% endif %}>Per 1 month<br>
+        <input type="radio"
+               name="interval"
+               value="1 day"
+               {% if settings.interval == "1 day" %}checked
+        {% endif %}>Per 1 day<br>
+        <input type="radio"
+               name="interval"
+               value="1 minute"
+        {% if settings.interval == "1 minute" %}checked
+        {% endif %}>Per 1 minute<br>
+    </p>
+    <button onclick>Save</button>
+</div>
+<a href="/main_page"><button>Back</button></a>
+{% endblock %}
