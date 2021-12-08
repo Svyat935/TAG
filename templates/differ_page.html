@@ -1,0 +1,45 @@
+{% extends 'base.html' %}
+{% block content %}
+<script>
+     var check = function() {
+        var from = document.getElementById('first').value,
+            to = document.getElementById('second').value;
+
+        var xhr = new XMLHttpRequest();
+        var url = "http://127.0.0.1:5000/differ/";
+        xhr.open("POST", url, false);
+        xhr.setRequestHeader("Content-Type", "application/json");
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                var diff = xhr.responseText;
+                document.getElementById('content').innerHTML = diff;
+            }
+        };
+        var data = JSON.stringify({"from": from, "to": to});
+        xhr.send(data);
+    }
+</script>
+<a href="/main_page"><button style="margin-bottom: 15px">Back</button></a>
+<button onclick="check()" style="margin-left: 15px; margin-bottom: 15px">Run</button>
+<div style="display:flex; ">
+    <div style="width:50%" >
+        ONE:
+        <select id="first">
+            {% for value in dates %}
+                <option value="{{ value }}">{{ value }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div style="width:50%">
+        SECOND:
+        <select id="second">
+            {% for value in dates %}
+                <option value="{{ value }}">{{ value }}</option>
+            {% endfor %}
+        </select>
+    </div>
+</div>
+<div id="content">
+
+</div>
+{% endblock %}
