@@ -1,5 +1,5 @@
 import time
-from datetime import datetime
+from datetime import datetime, timedelta
 from typing import List, Optional
 
 import requests as requests
@@ -15,27 +15,32 @@ class Daemon:
 
     def run(self):
         queue = self._create_queue()
-        date_wait = queue[0]["date"]
+        date_wait = queue[0]["date"].replace(microsecond=0)
         while True:
-            if date_wait < datetime.now():
+            now = datetime.now().replace(microsecond=0)
+            if date_wait < now:
                 print("Get sites")
                 while True:
                     site = queue[0]
-                    if site["date"] < datetime.now():
+                    if site["date"] < now:
                         site = queue.pop(0)
                         url = site["url"]
                         html = self._get_site(url)
                         if html:
                             self._create_html_template(url, html)
-                        site["date"] += site["interval"]
+                        site["date"] += site["interval"] + timedelta(seconds=1)
                         queue.append(site)
-                        date_wait = queue[0]["date"]
                     else:
                         break
+                queue = sorted(queue, key=lambda obj: obj["date"])
+                date_wait = queue[0]["date"].replace(microsecond=0)
             else:
-                sleep_length = date_wait - datetime.now()
-                print(f"Sleep: {sleep_length.seconds}")
-                time.sleep(sleep_length.seconds)
+                sleep_length = date_wait - now
+                sleep_length = sleep_length.seconds
+                if sleep_length == 0:
+                    sleep_length = 1
+                print(f"Sleep: {sleep_length}. Now: {now}. Wait: {date_wait}")
+                time.sleep(sleep_length)
 
     def _create_html_template(
         self, url: str, raw_html: str, date: datetime = datetime.now()
