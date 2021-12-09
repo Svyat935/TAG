@@ -27,7 +27,7 @@ class Daemon:
                         url = site["url"]
                         html = self._get_site(url)
                         if html:
-                            self._create_html_template(url, html)
+                            self._create_html_template(url, html, datetime.now())
                         site["date"] += site["interval"] + timedelta(seconds=1)
                         queue.append(site)
                     else:
@@ -43,7 +43,7 @@ class Daemon:
                 time.sleep(sleep_length)
 
     def _create_html_template(
-        self, url: str, raw_html: str, date: datetime = datetime.now()
+        self, url: str, raw_html: str, date: datetime
     ) -> None:
         with self.db_connection.create_connection() as conn:
             html_template = HTMLTemplate(

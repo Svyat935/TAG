@@ -161,6 +161,7 @@ def differ_page():
 
     search_settings = json.loads(settings.search_settings)
     search_settings = search_settings["html_tags"]
+    search_settings = search_settings.split(' ')
     tag_parser = TagParser(search_settings)
 
     parse_piece_from = tag_parser.parse(from_html)
@@ -186,7 +187,9 @@ def differ_page():
     #
     #     tolines = [*tolines, *result]
 
-    differ = HtmlDiff()
+    width = dates["width"]
+    differ = HtmlDiff(wrapcolumn=int(width//2) - 3)
+    # differ = HtmlDiff(wrapcolumn=50)
     output = []
     for tag in parse_piece_from:
         answer = differ.make_file(fromlines=parse_piece_from[tag], tolines=parse_piece_to[tag])
