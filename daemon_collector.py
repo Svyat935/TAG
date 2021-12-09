@@ -7,11 +7,20 @@ import requests as requests
 from db.db_connection import DBConnection
 from models.html_template import HTMLTemplate
 from models.site_settings import SiteSettings
+from validators.settings_validator import SettingsValidator
+from settings.controller_site_settings import ControllerSiteSettings
+from models.user import User
+
+from os import listdir
+from os.path import isfile, join
+import json
+from pathlib import Path
 
 
 class Daemon:
     def __init__(self):
         self.db_connection = DBConnection()
+        self.modules = 'modules'
 
     def run(self):
         queue = self._create_queue()
@@ -19,7 +28,37 @@ class Daemon:
         while True:
             now = datetime.now().replace(microsecond=0)
             if date_wait < now:
-                print("Get sites")
+                print("Get sites and modules")
+                try:
+                    addictional_modules = [f for f in listdir(self.modules) if isfile(join(self.modules, f))]
+                    for i in addictional_modules:
+                        with open(self.modules + "/" + i, 'r') as file:
+                            settings = json.load(file)
+                            SettingsValidator.validate_site_settings(settings)
+                            interval = settings["interval"]
+                            if interval == "1 day":
+                                interval = timedelta(days=1)
+                            elif interval == "1 hour":
+                                interval = timedelta(hours=1)
+                            else:
+                                interval = timedelta(minutes=1)
+
+                            with self.db_connection.create_connection() as conn:
+                                user_id = conn.query(User).filter(User.login == settings["username"]).first()
+
+                            site_settings = SiteSettings(
+                                user_id=user_id.id,
+                                url=settings["url"],
+                                search_settings=json.dumps(settings),
+                                search_interval=interval,
+                                current_date=datetime.now(),
+                            )
+                            ControllerSiteSettings().create_site_settings(site_settings)
+                        Path(self.modules + "/" + i).rename(self.modules + "/executed/" + i)
+
+                except Exception as e:
+                    print("{0}".format(e))
+
                 while True:
                     site = queue[0]
                     if site["date"] < now:
@@ -32,6 +71,8 @@ class Daemon:
                         queue.append(site)
                     else:
                         break
+
+                queue = self._create_queue()
                 queue = sorted(queue, key=lambda obj: obj["date"])
                 date_wait = queue[0]["date"].replace(microsecond=0)
             else:
@@ -41,6 +82,7 @@ class Daemon:
                     sleep_length = 1
                 print(f"Sleep: {sleep_length}. Now: {now}. Wait: {date_wait}")
                 time.sleep(sleep_length)
+
 
     def _create_html_template(
         self, url: str, raw_html: str, date: datetime
