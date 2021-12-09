@@ -2,7 +2,7 @@ import json
 from datetime import datetime, timedelta
 from difflib import HtmlDiff
 
-from flask import Flask, request, render_template, redirect, url_for
+from flask import Flask, request, render_template, redirect, url_for, flash
 
 from auth.user_reg_auth import UserRegAuth
 from models.site_settings import SiteSettings
@@ -10,9 +10,11 @@ from models.user import User
 from settings.controller_site_settings import ControllerSiteSettings
 from validators.settings_validator import SettingsValidator
 from validators.user_validator import UserValidator
+from os import urandom
 
 app = Flask(__name__)
-
+SECRET_KEY = urandom(32)
+app.config['SECRET_KEY'] = SECRET_KEY
 user_reg_auth = UserRegAuth()
 controller_site_settings = ControllerSiteSettings()
 user_validator = UserValidator()
@@ -23,15 +25,19 @@ user_validator = UserValidator()
 def authorization():
     if request.method == "GET":
         return render_template("auth.html")
-
-    login = user_validator.validate_login(request.form["login"])
-    password = user_validator.validate_password(request.form["password"])
-    token = user_reg_auth.authorization(login, password)
-    if token:
-        response = redirect("/main_page")
-        response.set_cookie("JWT", token)
-        return response
-    return {"status": "authentication is failed."}, 400
+    try:
+        login = user_validator.validate_login(request.form["login"])
+        password = user_validator.validate_password(request.form["password"])
+        token = user_reg_auth.authorization(login, password)
+        if token:
+            response = redirect("/main_page")
+            response.set_cookie("JWT", token)
+            return response
+        flash('User does not exists')
+        return redirect("/auth")
+    except Exception as e:
+        flash("{0}".format(e))
+        return redirect("/auth")
 
 
 @app.route("/reg", methods=["GET", "POST"])
@@ -49,8 +55,9 @@ def registration():
     )
     try:
         user_reg_auth.registration(user)
-    except ValueError as info:
-        return {"status": "error", "message": str(info)}, 400
+    except ValueError as e:
+        flash("{0}".format(e))
+        return redirect("/reg")
 
     token = user_reg_auth.authorization(login, password)
 
@@ -95,14 +102,13 @@ def page_site_settings():
         return {"status": "error", "message": "JWT is invalid."}, 400
     user = user_reg_auth.get_user(user_id)
 
-    settings = request.json
-    if settings is None:
-        return {"status": "error", "message": "JSON is empty"}, 400
+    settings = request.form
 
     try:
         SettingsValidator.validate_site_settings(settings)
-    except ValueError as info:
-        return {"status": "error", "message": str(info)}, 400
+    except ValueError as e:
+        flash("{0}".format(e))
+        return redirect("/settings/create/site_settings")
 
     interval = settings["interval"]
     if interval == "1 day":
@@ -120,7 +126,8 @@ def page_site_settings():
         current_date=datetime.now(),
     )
     controller_site_settings.create_site_settings(site_settings)
-    return {"status": "ok"}
+    flash("Settings were saved successfully")
+    return redirect('/main_page')
 
 
 @app.route("/differ/", methods=["GET", "POST"])
@@ -174,3 +181,15 @@ def differ_page():
     differ = HtmlDiff()
     answer = differ.make_file(fromlines=fromlines, tolines=tolines)
     return answer
+
+
+if __name__ == "__main__":
+    app.run()
+
+
+if __name__ == "__main__":
+    app.run()
+
+
+if __name__ == "__main__":
+    app.run()

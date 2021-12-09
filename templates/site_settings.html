@@ -1,64 +1,76 @@
 {% extends 'base.html' %}
 {% block content %}
 <script>
-     var check = function() {
-        var url_text = document.getElementById('url').value,
-            html_tags = document.getElementById('html_tags').value,
-            css_tags = document.getElementById('css_tags').value,
-            interval = undefined;
-        let radios = document.getElementsByName('interval');
-        for(var i=0, length = radios.length; i < length; i++){
-            if (radios[i].checked){
-                interval = radios[i].value;
-                break;
-            }
-        }
-        var xhr = new XMLHttpRequest();
-        var url = "http://127.0.0.1:5000/settings/create/site_settings";
-        xhr.open("POST", url, false);
-        xhr.setRequestHeader("Content-Type", "application/json");
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === 4 && xhr.status === 200) {
-                var json = JSON.parse(xhr.responseText);
-                console.log(json.email + ", " + json.password);
-            }
-        };
-        var data = JSON.stringify({"url": url_text, "interval": interval, "html_tags": html_tags.split(" "), "css_tags": css_tags});
-        xhr.send(data);
-    }
+    //  var check = function() {
+    //     var url_text = document.getElementById('url').value,
+    //         html_tags = document.getElementById('html_tags').value,
+    //         css_tags = document.getElementById('css_tags').value,
+    //         interval = undefined;
+    //     let radios = document.getElementsByName('interval');
+    //     for(var i=0, length = radios.length; i < length; i++){
+    //         if (radios[i].checked){
+    //             interval = radios[i].value;
+    //             break;
+    //         }
+    //     }
+    //     var xhr = new XMLHttpRequest();
+    //     var url = "http://127.0.0.1:5000/settings/create/site_settings";
+    //     xhr.open("POST", url, false);
+    //     xhr.setRequestHeader("Content-Type", "application/json");
+    //     xhr.onreadystatechange = function () {
+    //         if (xhr.readyState === 4 && xhr.status === 200) {
+    //             var json = JSON.parse(xhr.responseText);
+    //             console.log(json.email + ", " + json.password);
+    //         }
+    //     };
+    //     var data = JSON.stringify({"url": url_text, "interval": interval, "html_tags": html_tags.split(" "), "css_tags": css_tags});
+    //     xhr.send(data);
+    // }
 </script>
-<div>
-    <p>
-        <label for="url">URL</label>
-        <input id="url" type="text" name="url" size="50" value={{ settings.url }}>
-    </p>
-    <p>
-        <label for="html_tags">Tags of HTML (separate using space)</label>
-        <textarea id="html_tags" name="html_tags" size="50" >{{ settings.html_tags }}</textarea>
-    </p>
-    <p>
-        <label for="css_tags">Tags of CSS (separate using space)</label>
-        <textarea id="css_tags" name="css_tags" >{{ settings.css_tags }}</textarea>
-    </p>
-    <p>
-        <label for="interval">Interval</label>
-        <input type="radio"
-               name="interval"
-               value="1 day"
-               {% if settings.interval == "1 day" %}checked
-        {% endif %}>Per 1 month<br>
-        <input type="radio"
-               name="interval"
-               value="1 hour"
-               {% if settings.interval == "1 hour" %}checked
-        {% endif %}>Per 1 day<br>
-        <input type="radio"
-               name="interval"
-               value="1 minute"
-        {% if settings.interval == "1 minute" %}checked
-        {% endif %}>Per 1 minute<br>
-    </p>
-    <button onclick="check()">Save</button>
+<div class="form center base-form-x">
+    <form action="/settings/create/site_settings" method=POST>
+        <p>
+            <label for="url">URL</label>
+            <br>
+            <input id="url" type="text" name="url" size="30" value={{ settings.url }}>
+        </p>
+        <p>
+            <label for="html_tags">HTML tags</label>
+            <br>
+            <textarea id="html_tags" name="html_tags" size="50" placeholder="(separate using space)">{{ settings.html_tags }}</textarea>
+        </p>
+        <p>
+            <label for="css_tags">CSS tags</label>
+            <br>
+            <textarea id="css_tags" name="css_tags" placeholder="(separate using space)">{{ settings.css_tags }}</textarea>
+        </p>
+        <p>
+            <label for="interval">interval</label>
+            <br>
+            <input type="radio"
+                name="interval"
+                value="1 day"
+                {% if settings.interval == "1 day" %}checked
+            {% endif %}>&nbsp;per 1 month<br>
+            <input type="radio"
+                name="interval"
+                value="1 hour"
+                {% if settings.interval == "1 hour" %}checked
+            {% endif %}>&nbsp;per 1 day<br>
+            <input type="radio"
+                name="interval"
+                value="1 minute"
+            {% if settings.interval == "1 minute" %}checked
+            {% endif %}>&nbsp;per 1 minute<br>
+        </p>
+        <p>
+            <input type=submit value=save>
+        </p>
+    </form>
+    <br>
+    <a href="/main_page"><button>back</button></a>
 </div>
-<a href="/main_page"><button>Back</button></a>
+{% for msg in get_flashed_messages() %}
+    <div class="text-sub-warning down-messages">{{msg}}</div>
+{% endfor %}  
 {% endblock %}

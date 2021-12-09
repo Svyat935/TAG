@@ -10,35 +10,48 @@
         }
     }
 </script>
-<h1>Sign Up</h1>
-<form action="/reg" method=POST onsubmit="return check();">
-    <p>
-        <label for="name">Name</label>
-        <input type="text" name="name" required>
-    </p>
-    <p>
-        <label for="surname">Surname</label>
-        <input type="text" name="surname" required>
-    </p>
-    <p>
-        <label for="email">Email</label>
-        <input type="email" name="email" required>
-    </p>
-    <p>
-        <label for="login">Login</label>
-        <input type="text" name="login" required>
-    </p>
-    <p>
-        <label for="password">Password</label>
-        <input id="password" type="password" name="password" required>
-    </p>
-    <p>
-        <label for="repeat_password">Password Confirm</label>
-        <input id="confirm_password" type="password" name="repeat_password" required>
-    </p>
-    <p>
-        <input type=submit value=Registration>
-    </p>
-</form>
-<a href="/"><button>Sign In</button></a>
+<div class="fone">
+    <div class="form reg-form center">
+        <h1>sigh up</h1>
+        <form action="/reg" method=POST onsubmit="return check();">
+            <p>
+                <label for="name">name</label>
+                <br>
+                <input type="text" name="name" required>
+            </p>
+            <p>
+                <label for="surname">surname</label>
+                <br>
+                <input type="text" name="surname" required>
+            </p>
+            <p>
+                <label for="email">email</label>
+                <br>
+                <input type="email" name="email" required>
+            </p>
+            <p>
+                <label for="login">login</label>
+                <br>
+                <input type="text" name="login" required>
+            </p>
+            <p>
+                <label for="password">password</label>
+                <br>
+                <input id="password" type="password" name="password" required>
+            </p>
+            <p>
+                <label for="repeat_password">confirm</label>
+                <br>
+                <input id="confirm_password" type="password" name="repeat_password" required>
+            </p>
+            <p>
+                <input type=submit value=registration>
+            </p>
+        </form>
+        <a href="/"><button>sign in</button></a>
+    </div>
+    {% for msg in get_flashed_messages() %}
+        <div class="text-sub-warning down-messages">{{msg}}</div>
+    {% endfor %}  
+</div>
 {% endblock %}

@@ -1,14 +1,17 @@
 {% extends 'base.html' %}
 {% block content %}
-<div>
-  <p>
-    <a href="/settings/create/site_settings"><button>Site Settings</button></a>
-  </p>
-  <p>
-    <a href="/differ"><button>Different</button></a>
-  </p>
-  <p>
-    <a href="/"><button>Log out</button></a>
-  </p>
+<div class="form base-form center">
+  <a href="/settings/create/site_settings" class="a">
+    <button class="p">Site Settings</button>
+  </a>
+  <a href="/differ" class="a">
+    <button class="p">Different</button>
+  </a>
+  <a href="/" class="a">
+    <button class="p">Log out</button>
+  </a>
 </div>
+{% for msg in get_flashed_messages() %}
+    <div class="text-sub-warning down-messages">{{msg}}</div>
+{% endfor %}  
 {% endblock %}
