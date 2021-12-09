@@ -7,6 +7,7 @@ from flask import Flask, request, render_template, redirect, url_for
 from auth.user_reg_auth import UserRegAuth
 from models.site_settings import SiteSettings
 from models.user import User
+from parsers.tag_parser import TagParser
 from settings.controller_site_settings import ControllerSiteSettings
 from validators.settings_validator import SettingsValidator
 from validators.user_validator import UserValidator
@@ -151,26 +152,36 @@ def differ_page():
         if from_html is not None and to_html is not None:
             break
 
-    fromlines = []
-    for temp in from_html.split("\n"):
-        result = []
-        while len(temp) > 73:
-            result.append(temp[:73])
-            temp = temp[73:]
-        result.append(temp)
+    search_settings = json.loads(settings.search_settings)
+    search_settings = search_settings["html_tags"]
+    tag_parser = TagParser(search_settings)
 
-        fromlines = [*fromlines, *result]
+    parse_piece_from = tag_parser.parse(from_html)
+    parse_piece_to = tag_parser.parse(to_html)
 
-    tolines = []
-    for temp in to_html.split("\n"):
-        result = []
-        while len(temp) > 73:
-            result.append(temp[:73])
-            temp = temp[73:]
-        result.append(temp)
-
-        tolines = [*tolines, *result]
+    # fromlines = []
+    # for temp in from_html.split("\n"):
+    #     result = []
+    #     while len(temp) > 73:
+    #         result.append(temp[:73])
+    #         temp = temp[73:]
+    #     result.append(temp)
+    #
+    #     fromlines = [*fromlines, *result]
+    #
+    # tolines = []
+    # for temp in to_html.split("\n"):
+    #     result = []
+    #     while len(temp) > 73:
+    #         result.append(temp[:73])
+    #         temp = temp[73:]
+    #     result.append(temp)
+    #
+    #     tolines = [*tolines, *result]
 
     differ = HtmlDiff()
-    answer = differ.make_file(fromlines=fromlines, tolines=tolines)
-    return answer
+    output = []
+    for tag in parse_piece_from:
+        answer = differ.make_file(fromlines=parse_piece_from[tag], tolines=parse_piece_to[tag])
+        output.append(answer)
+    return {"answer": output}, 200
