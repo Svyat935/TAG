@@ -2,11 +2,13 @@ from collections import defaultdict
 
 from bs4 import BeautifulSoup
 from typing import Set, List, Dict
-
+import re
 
 class TagParser:
     def __init__(self, tags: Set[str] = None):
         self._tags = set(tags) if tags is not None else set()
+        self.disabled_chars = ['  ', '\\t', '\\n']
+        self.disabled_regexp = [r'\\x.{1,2}']
 
     @property
     def tags(self) -> Set[str]:
@@ -28,6 +30,15 @@ class TagParser:
 
         output = defaultdict(list)
         for tag in finding_tags:
-            output[tag.name].append(str(tag))
+            output[tag.name].append(self.clean(tag.get_text()))
 
         return output if output else None
+
+    def clean(self, tag: str) -> str:
+        for dis in self.disabled_chars:
+            tag = tag.replace(dis, '')
+
+        for dis in self.disabled_regexp:
+            tag = re.sub(dis, '', tag)
+
+        return tag
