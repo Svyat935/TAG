@@ -11,8 +11,12 @@
         xhr.setRequestHeader("Content-Type", "application/json");
         xhr.onreadystatechange = function () {
             if (xhr.readyState === 4 && xhr.status === 200) {
-                var diff = xhr.responseText;
-                document.getElementById('content').innerHTML = diff;
+                var json = JSON.parse(xhr.responseText);
+                console.log(json);
+                document.getElementById('content').innerHTML = "";
+                json["answer"].forEach((element) => {
+                    document.getElementById('content').innerHTML += element;
+                })
             }
         };
         var data = JSON.stringify({"from": from, "to": to});
